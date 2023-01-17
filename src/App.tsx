@@ -6,10 +6,12 @@ import './App.css';
 import Navigation from './components/Navigation/Navigation';
 import CountryCard from './components/CountryCard/CountryCard';
 import CountryDetail from './components/CountryDetail/CountryDetail';
+import Filter from './components/Filter/Filter';
+import Selector from './components/Selector/Selector';
 
 import { getCountries } from './services/getCountries';
 
-function App() {
+const App = () => {
     const [filter, setFilter] = useState('');
     const [region, setRegion] = useState('');
     const [selectedCountry, setSelectedCountry] = useState<any>(undefined);
@@ -22,7 +24,16 @@ function App() {
         defaultDark ? 'dark' : 'light'
     );
 
+    const switchTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+    };
+
     const { isLoading, data, error } = useQuery<any>('countries', getCountries);
+
+    if (isLoading) {
+        return <div>Loading</div>;
+    }
 
     const filteredCountry = data?.find(
         (count: any) =>
@@ -30,20 +41,11 @@ function App() {
             filter.charAt(0).toUpperCase() + filter.slice(1)
     );
 
-    if (isLoading) {
-        return <div>Loading</div>;
-    }
-
-    const switchTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-    };
-
     const filteredRegion =
         region && data?.filter((count: any) => count.region === region);
 
-    const filterRegion = () => {
-        return region
+    const filterRegionRender = () =>
+        region
             ? filteredRegion.map((country: any) => (
                   <CountryCard
                       key={country.name.common}
@@ -58,10 +60,23 @@ function App() {
                       onClick={() => setSelectedCountry(country)}
                   />
               ));
-    };
+
+    const filteredCountryRender = () =>
+        !filteredCountry ? (
+            filterRegionRender()
+        ) : (
+            <CountryCard
+                key={filteredCountry.name.common}
+                country={filteredCountry}
+                onClick={() => setSelectedCountry(filteredCountry)}
+            />
+        );
 
     return error ? (
-        <div>Error</div>
+        <div>
+            <h3>Server error</h3>
+            <h6>Try again in a few moments</h6>.
+        </div>
     ) : (
         <div className="app" data-theme={theme}>
             <Navigation switchTheme={switchTheme} />
@@ -72,37 +87,16 @@ function App() {
                 />
             ) : (
                 <>
-                    <input
-                        style={{ margin: '10px 0 0 10px' }}
-                        type="text"
-                        onChange={(e) => setFilter(e.target.value)}
-                        placeholder="Search for a country..."
+                    <Filter setFilter={setFilter} />
+                    <Selector
+                        setRegion={setRegion}
+                        filteredCountry={filteredCountry}
                     />
-                    <select
-                        style={{ display: 'block', margin: '10px 0 0 10px' }}
-                        onChange={(e) => setRegion(e.target.value)}
-                        disabled={filteredCountry}
-                    >
-                        <option value=""></option>
-                        <option value="Africa">Africa</option>
-                        <option value="Americas">America</option>
-                        <option value="Asia">Asia</option>
-                        <option value="Europe">Europe</option>
-                        <option value="Oceania">Oceania</option>
-                    </select>
-                    {!filteredCountry ? (
-                        filterRegion()
-                    ) : (
-                        <CountryCard
-                            key={filteredCountry.name.common}
-                            country={filteredCountry}
-                            onClick={() => setSelectedCountry(filteredCountry)}
-                        />
-                    )}
+                    {filteredCountryRender()}
                 </>
             )}
         </div>
     );
-}
+};
 
 export default App;

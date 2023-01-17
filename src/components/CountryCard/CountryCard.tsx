@@ -1,6 +1,6 @@
 import './CountryCard.css';
 
-function CountryCard({ country, onClick }: any) {
+const CountryCard = ({ country, onClick }: any) => {
     const { flags, name, population, region, capital } = country;
 
     return country.name ? (
@@ -22,6 +22,6 @@ function CountryCard({ country, onClick }: any) {
     ) : (
         <div>Loading</div>
     );
-}
+};
 
 export default CountryCard;

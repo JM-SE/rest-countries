@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './CountryDetail.css';
 
-function CountryDetail({ country, onBackClick }: any) {
+const CountryDetail = ({ country, onBackClick }: any) => {
     const {
         flags,
         name,
@@ -73,6 +73,6 @@ function CountryDetail({ country, onBackClick }: any) {
     ) : (
         <div>Loading</div>
     );
-}
+};
 
 export default CountryDetail;
